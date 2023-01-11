@@ -24,9 +24,9 @@
   "devDependencies": {
     "@builder.io/qwik": "0.16.2",
     "@builder.io/qwik-city": "0.0.128",
+    "@fontsource/inter": "^4.5.14",
     "@iconify-json/tabler": "^1.1.54",
     "@tailwindcss/typography": "^0.5.8",
-    "@fontsource/inter": "^4.5.14",
     "@types/eslint": "8.4.10",
     "@types/markdown-it": "^12.2.3",
     "@types/node": "latest",
@@ -50,5 +50,9 @@
   },
   "engines": {
     "node": ">=15.0.0"
+  },
+  "dependencies": {
+    "@builder.io/sdk": "^1.1.30",
+    "@builder.io/sdk-qwik": "^0.1.1"
   }
 }

@@ -1,10 +1,16 @@
 import { component$, useStore, useServerMount$ } from "@builder.io/qwik";
-import type { DocumentHead } from "@builder.io/qwik-city";
-
+import { builder } from '@builder.io/sdk'
 import { fetchPosts } from "~/utils/posts";
 import { SITE } from "~/config.mjs";
+import { DocumentHead, RequestHandler, useEndpoint } from '@builder.io/qwik-city';
+import { BUILDER_PUBLIC_API_KEY } from "~/lib/builder";
+
 
 export default component$(() => {
+  const data = useEndpoint<any>();
+
+  console.log(data)
+
   const store = useStore({
     posts: [],
   });
@@ -77,6 +83,24 @@ export default component$(() => {
     </section>
   );
 });
+
+
+export const onGet: RequestHandler<any> = async ({ params }) => {
+  // put your DB access here (hard coding data for simplicity)
+  await builder.init(BUILDER_PUBLIC_API_KEY)
+
+  const data = await builder.get('product').promise();
+
+  console.log(data);
+
+  return {
+    skuId: params.skuId,
+    price: 123.45,
+    description: `Description for ${params.skuId}`,
+    data,
+  };
+};
+
 
 export const head: DocumentHead = {
   title: "Blog — Qwind",
