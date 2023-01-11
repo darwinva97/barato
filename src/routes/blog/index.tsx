@@ -1,19 +1,23 @@
-import { component$, useStore, useServerMount$ } from "@builder.io/qwik";
+import { component$, useStore, useServerMount$, Resource } from "@builder.io/qwik";
 import { builder } from '@builder.io/sdk'
 import { fetchPosts } from "~/utils/posts";
 import { SITE } from "~/config.mjs";
 import { DocumentHead, RequestHandler, useEndpoint } from '@builder.io/qwik-city';
 import { BUILDER_PUBLIC_API_KEY } from "~/lib/builder";
 
+interface IProduct {
+  name: string;
+  size: any[];
+  offer?: number;
+  description?: string;
+  images: [];
+}
 
 export default component$(() => {
-  const data = useEndpoint<any>();
-
-  console.log(data)
-
   const store = useStore({
     posts: [],
   });
+  const products = useEndpoint<IProduct[]>();
 
   useServerMount$(async () => {
     const posts = await fetchPosts();
@@ -27,6 +31,23 @@ export default component$(() => {
           Blog
         </h1>
       </header>
+      <Resource
+      value={products}
+      onPending={() => <div>Loading...</div>}
+      onRejected={() => <div>Error</div>}
+      onResolved={(products) => 
+        <ul>
+          {products?.map(({ name, description, images, offer }) => (
+            <li>
+              <strong>{name}</strong>
+              <p>{description}</p>
+              <span>{offer}</span>
+              <ul>{images?.map(image => JSON.stringify(image))}</ul>
+            </li>
+          ))}
+        </ul>}
+      />
+
       <ul>
         {store.posts.map((post: any) => (
           <li class="mb-10 md:mb-16">
@@ -85,22 +106,15 @@ export default component$(() => {
 });
 
 
-export const onGet: RequestHandler<any> = async ({ params }) => {
+export const onGet: RequestHandler<IProduct[]> = async () => {
   // put your DB access here (hard coding data for simplicity)
-  await builder.init(BUILDER_PUBLIC_API_KEY)
+  builder.init(BUILDER_PUBLIC_API_KEY)
 
-  const data = await builder.get('product').promise();
+  const data: IProduct[] = (await builder.getAll('product'))
+    .map(({data})=>data as unknown as IProduct)
 
-  console.log(data);
-
-  return {
-    skuId: params.skuId,
-    price: 123.45,
-    description: `Description for ${params.skuId}`,
-    data,
-  };
+  return data
 };
-
 
 export const head: DocumentHead = {
   title: "Blog — Qwind",
